@@ -7,9 +7,13 @@ import {
   Text,
   View,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { Input } from 'react-native-elements';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -19,55 +23,49 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Constants from 'expo-constants';
 
-
-
-const  World = ()=> {
+const World = () => {
   const [getCovidData, setCovidData] = React.useState();
   const [getPop, setPop] = React.useState();
 
-
   const getDataFromAPI = async () => {
-    fetch("https://covid-19-data.p.rapidapi.com/totals", {
-      "method": "GET",
-      "headers": {
-        "x-rapidapi-key": "bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9",
-        "x-rapidapi-host": "covid-19-data.p.rapidapi.com"
-      }
-    })  .then((response) => response.json())
-          .then((result) => { 
-            console.log(result) 
-            setCovidData(result)
-            
-          })
-          .catch((error) => { 
-            console.log('Error: ', error)
-          });
-      };
-
-
-  const getDataFromAPI2 = async () => {
-
-fetch("https://world-population.p.rapidapi.com/worldpopulation", {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-key": "bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9",
-		"x-rapidapi-host": "world-population.p.rapidapi.com"
-	}
-})  .then((response) => response.json())
-      .then((result) => { 
-        console.log(result.body.world_population) 
-        setPop(result.body.world_population)
-        
+    fetch('https://covid-19-data.p.rapidapi.com/totals', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+        'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        setCovidData(result);
       })
-      .catch((error) => { 
-        console.log('Error: ', error)
+      .catch((error) => {
+        console.log('Error: ', error);
       });
   };
 
+  const getDataFromAPI2 = async () => {
+    fetch('https://world-population.p.rapidapi.com/worldpopulation', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+        'x-rapidapi-host': 'world-population.p.rapidapi.com',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result.body.world_population);
+        setPop(result.body.world_population);
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      });
+  };
 
   React.useEffect(() => {
     getDataFromAPI();
@@ -77,47 +75,59 @@ fetch("https://world-population.p.rapidapi.com/worldpopulation", {
     getDataFromAPI2();
   }, [setPop]);
 
-
   if (getCovidData && getPop) {
     return (
       <>
-
         <View style={styles.container}>
           <FlatList
             refreshing={false}
             onRefresh={getDataFromAPI}
             keyExtractor={(item, index) => item.key}
             data={getCovidData}
-            renderItem={({item, index}) => (
+            renderItem={({ item, index }) => (
               <View>
-               
                 <Text style={styles.card}>{getPop}</Text>
-               <Text style={styles.label}>Total World Population</Text>
+                <Text style={styles.label}>Total World Population</Text>
 
-                <Text style={[styles.card, {backgroundColor: "plum"}]}>{item.confirmed}</Text>
+                <Text style={[styles.card, { backgroundColor: 'plum' }]}>
+                  {item.confirmed}
+                </Text>
 
                 <Text style={styles.label}>Total Cases</Text>
-                <Text style={styles.label}>{((item.confirmed/getPop)*100).toFixed(3)}%</Text>
+                <Text style={styles.label}>
+                  {((item.confirmed / getPop) * 100).toFixed(3)}%
+                </Text>
 
-                <Text style={[styles.card, {backgroundColor: "yellowgreen"}]}>{item.recovered}</Text>
+                <Text style={[styles.card, { backgroundColor: 'yellowgreen' }]}>
+                  {item.recovered}
+                </Text>
                 <Text style={styles.label}>Recovered</Text>
-                <Text style={styles.label}>{((item.recovered/getPop)*100).toFixed(3)}%</Text>
+                <Text style={styles.label}>
+                  {((item.recovered / getPop) * 100).toFixed(3)}%
+                </Text>
 
-                <Text style={[styles.card, {backgroundColor: "tomato"}]}>{item.deaths}</Text>
+                <Text style={[styles.card, { backgroundColor: 'tomato' }]}>
+                  {item.deaths}
+                </Text>
                 <Text style={styles.label}>Total Deaths</Text>
-                <Text style={styles.label}>{((item.deaths/getPop)*100).toFixed(3)}%</Text>
-                
+                <Text style={styles.label}>
+                  {((item.deaths / getPop) * 100).toFixed(3)}%
+                </Text>
 
-                <Text style={[styles.label, {backgroundColor: "lightgrey", marginTop: 20}]}>Last Updated</Text>
+                <Text
+                  style={[
+                    styles.label,
+                    { backgroundColor: 'lightgrey', marginTop: 20 },
+                  ]}>
+                  Last Updated
+                </Text>
 
-                <Text style={[styles.label, {backgroundColor: "lightgrey"}]}>{item.lastUpdate}</Text>
-
-
+                <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
+                  {item.lastUpdate}
+                </Text>
               </View>
             )}
           />
-
-         
         </View>
       </>
     );
@@ -129,37 +139,230 @@ fetch("https://world-population.p.rapidapi.com/worldpopulation", {
       </View>
     );
   }
-}
+};
 
+const Countries = ({ navigation }) => {
+  const [getCountries, setCountries] = React.useState();
 
+  const getDataFromAPI = async () => {
+    fetch('https://covid-19-data.p.rapidapi.com/help/countries', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+        'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        // console.log(result.map(item=>{return item.name}))
+        setCountries(
+          result.map((item) => {
+            return item.name;
+          })
+        );
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      });
+  };
 
-const Countries = ()=>{
-  return(
+  React.useEffect(() => {
+    getDataFromAPI();
+  }, [setCountries]);
+
+  return (
     <View>
-    <Text>Countries</Text>
+      <Input placeholder="Enter Country Name" style={{ padding: 10 }} />
+      <FlatList
+        refreshing={false}
+        onRefresh={getDataFromAPI}
+        keyExtractor={(item, index) => item.key}
+        data={getCountries}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            style={{
+              width: '100%',
+              padding: 10,
+              backgroundColor: 'lightgrey',
+              margin: 1,
+            }}
+            onPress={() => {
+              navigation.navigate('Country Details', item);
+            }}>
+            <Text>{item}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </View>
-  )
-}
+  );
+};
 
-const FavCountries = ()=>{
-  return(
+const CountryStats = ({ navigation, route }) => {
+  const [getData, setData] = React.useState();
+  const [getPop, setPop] = React.useState("Not Found");
+  const [selected, setSelected] = React.useState(false);
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => {
+            setSelected(!selected);
+          }}>
+          <Icon
+            name="star"
+            size={30}
+            color={selected ? 'black' : 'lightgrey'}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  });
+
+  const getDataFromAPI = async () => {
+    fetch(
+      `https://covid-19-data.p.rapidapi.com/country?name=${encodeURIComponent(
+        route.params
+      )}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key':
+            'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+          'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result.confirmed);
+        setData(result);
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      });
+  };
+
+  const getDataFromAPI2 = async () => {
+    fetch(`https://world-population.p.rapidapi.com/population?country_name=${encodeURIComponent(
+        route.params
+      )}`, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+        'x-rapidapi-host': 'world-population.p.rapidapi.com',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result.body.population);
+        setPop(result.body.population);
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      });
+  };
+
+  React.useEffect(() => {
+    getDataFromAPI2();
+  }, [setPop]);
+
+  React.useEffect(() => {
+    getDataFromAPI();
+  }, [setData]);
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        refreshing={false}
+        onRefresh={getDataFromAPI}
+        keyExtractor={(item, index) => item.key}
+        data={getData}
+        renderItem={({ item, index }) => (
+          <View>
+            <Text
+              style={{
+                alignSelf: 'center',
+                fontSize: 33,
+                fontWeight: 'bold',
+                marginTop: 20,
+              }}>
+              {item.country}
+            </Text>
+            <Text style={styles.card}>{getPop}</Text>
+            <Text style={styles.label}>Total Population</Text>
+
+            <Text style={[styles.card, { backgroundColor: 'plum' }]}>
+              {item.confirmed}
+            </Text>
+
+            <Text style={styles.label}>Total Cases</Text>
+            <Text style={styles.label}>
+              {((item.confirmed / getPop) * 100).toFixed(3)}%
+            </Text>
+
+            <Text style={[styles.card, { backgroundColor: 'yellowgreen' }]}>
+              {item.recovered}
+            </Text>
+            <Text style={styles.label}>Recovered</Text>
+            <Text style={styles.label}>
+              {((item.recovered / getPop) * 100).toFixed(3)}%
+            </Text>
+
+            <Text style={[styles.card, { backgroundColor: 'tomato' }]}>
+              {item.deaths}
+            </Text>
+            <Text style={styles.label}>Total Deaths</Text>
+            <Text style={styles.label}>
+              {((item.deaths / getPop) * 100).toFixed(3)}%
+            </Text>
+
+            <Text
+              style={[
+                styles.label,
+                { backgroundColor: 'lightgrey', marginTop: 20 },
+              ]}>
+              Last Updated
+            </Text>
+
+            <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
+              {item.lastUpdate}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
+  );
+};
+
+const FavCountries = () => {
+  return (
     <View>
-    <Text>Fav Countries</Text>
+      <Text>Fav Countries</Text>
     </View>
-  )
-}
+  );
+};
 
+const Stack = createNativeStackNavigator();
 
 const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator
-    >
+    <Drawer.Navigator>
+      <Drawer.Screen name="Countries Stats" component={MyStack} />
       <Drawer.Screen name="World Stats" component={World} />
-      <Drawer.Screen name="Countries Stats" component={Countries} />
       <Drawer.Screen name="Favourite Countries" component={FavCountries} />
     </Drawer.Navigator>
+  );
+}
+
+function MyStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Countries" component={Countries} />
+      <Stack.Screen name="Country Details" component={CountryStats} />
+    </Stack.Navigator>
   );
 }
 
@@ -170,8 +373,6 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -196,18 +397,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ecf0f1',
   },
-card: {
-  fontSize:26,
-  fontWeight:"bold", 
-  backgroundColor:"lightblue",
-  padding:30, 
-  borderRadius:50, 
-  marginTop: 20, 
-  width: "fit-content", 
-  alignSelf: "center" 
-},
-label: {
-  alignSelf: "center", fontWeight: "bold", fontSize: 16
-}
-
+  card: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    backgroundColor: 'lightblue',
+    padding: 30,
+    borderRadius: 50,
+    marginTop: 20,
+    width: 'fit-content',
+    alignSelf: 'center',
+  },
+  label: {
+    alignSelf: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
