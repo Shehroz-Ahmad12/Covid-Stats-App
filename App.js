@@ -229,8 +229,13 @@ const CountryStats = ({ navigation, route }) => {
         <TouchableOpacity
           style={{ marginRight: 15 }}
           onPress={() => {
-            setSelected(!selected);
-            addToFav();
+            if (selected) {
+              deleteFav();
+              setSelected(false);
+            } else {
+              addToFav();
+              setSelected(true);
+            }
           }}>
           <Icon
             name="star"
@@ -251,6 +256,26 @@ const CountryStats = ({ navigation, route }) => {
     await AsyncStorage.setItem('@fav:key', JSON.stringify(newList));
     console.log(newList);
     console.log('Saving Done!');
+  };
+
+  const checkFvrt = async () => {
+    var list = JSON.parse(await AsyncStorage.getItem('@fav:key'));
+    console.log(list);
+    if (list.includes(route.params)) {
+      setSelected(true);
+    } else {
+      setSelected(false);
+    }
+  };
+
+  const deleteFav = async () => {
+    var list = JSON.parse(await AsyncStorage.getItem('@fav:key'));
+    var index = list.indexOf(route.params);
+    if (index > -1) {
+      list.splice(index, 1);
+      await AsyncStorage.setItem('@fav:key', JSON.stringify(list));
+      console.log(list);
+    }
   };
 
   const getDataFromAPI = async () => {
@@ -294,6 +319,7 @@ const CountryStats = ({ navigation, route }) => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result.body.population);
+        checkFvrt();
         setPop(result.body.population);
       })
       .catch((error) => {
@@ -376,7 +402,7 @@ const CountryStats = ({ navigation, route }) => {
 const FavCountries = ({ navigation }) => {
   const [getCountries, setCountries] = React.useState();
 
-  const LoadData = async () => {
+  const loadData = async () => {
     console.log('Loading');
     var item = await AsyncStorage.getItem('@fav:key');
     setCountries(JSON.parse(item));
@@ -384,14 +410,14 @@ const FavCountries = ({ navigation }) => {
   };
 
   React.useEffect(() => {
-    LoadData();
+    loadData();
   }, [setCountries]);
 
   return (
     <View>
       <FlatList
         refreshing={false}
-        onRefresh={LoadData}
+        onRefresh={loadData}
         keyExtractor={(item, index) => item.key}
         data={getCountries}
         renderItem={({ item, index }) => (
@@ -414,7 +440,6 @@ const FavCountries = ({ navigation }) => {
 };
 
 const Stack = createNativeStackNavigator();
-
 const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
