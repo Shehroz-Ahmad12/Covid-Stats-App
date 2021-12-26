@@ -156,33 +156,34 @@ const Countries = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((result) => {
-        // console.log(result.map(item=>{return item.name}))
-        setCountries(
-          result.map((item) => {
-            return item.name;
-          })
-        );
+        var res = result.map((item) => {
+          return item.name;
+        });
+        setCountries(res);
+        setText(res);
       })
       .catch((error) => {
         console.log('Error: ', error);
       });
   };
 
-  React.useEffect(() => {
-    getDataFromAPI();
-  }, [setCountries]);
-
-  // const fil = (country)=>{
-  //   if (country.includes(getText)){
-  //     return country;
-  //   }
-  // }
-
-  // // const filter= ()=>{
-  // //   var con=getCountries.filter(fil);
-  // //   console.log(con);
-  // //   setCountries(con);
-  // // }
+  const filter = (text) => {
+    console.log(getCountries);
+    var result = getText.filter((country) => {
+      if (country.includes(text)) {
+        return country;
+      }
+    });
+    console.log(result);
+    setCountries(result);
+  };
+  React.useEffect(
+    () => {
+      getDataFromAPI();
+    },
+    [setCountries],
+    [setText]
+  );
 
   return (
     <View>
@@ -190,7 +191,7 @@ const Countries = ({ navigation }) => {
         placeholder="Enter Country Name"
         style={{ padding: 10 }}
         onChangeText={(v) => {
-          setText(v);
+          filter(v);
         }}
       />
       <FlatList
@@ -418,10 +419,9 @@ const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator initialRouteName="Countries Stats">
       <Drawer.Screen name="World Stats" component={World} />
       <Drawer.Screen name="Countries Stats" component={MyStack} />
-      
       <Drawer.Screen name="Favourite Countries" component={FavCountries} />
     </Drawer.Navigator>
   );
@@ -450,23 +450,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: Constants.statusBarHeight,
   },
-  header: {
-    height: 60,
-    backgroundColor: 'lightseagreen',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  tile: {
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    height: 40,
-    padding: 8,
-    margin: 3,
-    elevation: 0,
-    borderWidth: 1,
-    borderColor: '#ecf0f1',
-  },
+
   card: {
     fontSize: 26,
     fontWeight: 'bold',
