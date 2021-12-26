@@ -185,7 +185,7 @@ const CountriesList = ({ navigation }) => {
       <View>
         <Input
           placeholder="Enter Country Name"
-          style={{ padding: 5 }}
+          style={{ padding: 5, width: "80%" }}
           onChangeText={(v) => {
             filter(v);
           }}
@@ -199,7 +199,7 @@ const CountriesList = ({ navigation }) => {
             <TouchableOpacity
               style={styles.countryLabel}
               onPress={() => {
-                navigation.navigate('Country Details', item);
+                navigation.push('Country Details', item);
               }}>
               <Text>{item}</Text>
             </TouchableOpacity>
@@ -247,7 +247,6 @@ const CountryStats = ({ navigation, route }) => {
   });
 
   const addToFav = async () => {
-    console.log('Saving');
     console.log(route.params);
     var list = JSON.parse(await AsyncStorage.getItem('@fav:key'));
     console.log(list);
@@ -433,7 +432,8 @@ const FavCountries = ({ navigation }) => {
             <TouchableOpacity
               style={styles.countryLabel}
               onPress={() => {
-                navigation.navigate('Country Details', item);
+                console.log("Shift to Country Details")
+                navigation.push('Country Details', item);
               }}>
               <Text>{item}</Text>
             </TouchableOpacity>
@@ -458,18 +458,50 @@ function MyDrawer() {
   return (
     <Drawer.Navigator>
       <Drawer.Screen name="World Stats" component={WorldStats} />
-      <Drawer.Screen name="Countries Stats" component={MyStack} />
-      <Drawer.Screen name="Favourite Countries" component={FavCountries} />
+      <Drawer.Screen name="Countries Stats" component={CountryStack} />
+      <Drawer.Screen name="Favourite Countries" component={FavStack} />
     </Drawer.Navigator>
   );
 }
 
-function MyStack() {
+function CountryStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="Countries"
         component={CountriesList}
+        options={{
+          headerStyle: {
+            backgroundColor: 'steelblue',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Country Details"
+        component={CountryStats}
+        options={{
+          headerStyle: {
+            backgroundColor: 'steelblue',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+function FavStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Favourite Countries"
+        component={FavCountries}
         options={{
           headerStyle: {
             backgroundColor: 'steelblue',
