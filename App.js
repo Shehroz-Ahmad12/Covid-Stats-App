@@ -444,7 +444,7 @@ const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName="Countries Stats">
+    <Drawer.Navigator>
       <Drawer.Screen name="World Stats" component={World} />
       <Drawer.Screen name="Countries Stats" component={MyStack} />
       <Drawer.Screen name="Favourite Countries" component={FavCountries} />
