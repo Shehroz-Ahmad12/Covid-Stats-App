@@ -30,6 +30,7 @@ import Constants from 'expo-constants';
 const World = () => {
   const [getCovidData, setCovidData] = React.useState();
   const [getPop, setPop] = React.useState();
+  const [getData, setData] = React.useState();
 
   const getDataFromAPI = async () => {
     fetch('https://covid-19-data.p.rapidapi.com/totals', {
@@ -143,6 +144,7 @@ const World = () => {
 
 const Countries = ({ navigation }) => {
   const [getCountries, setCountries] = React.useState();
+  const [getText, setText] = React.useState();
 
   const getDataFromAPI = async () => {
     fetch('https://covid-19-data.p.rapidapi.com/help/countries', {
@@ -170,9 +172,27 @@ const Countries = ({ navigation }) => {
     getDataFromAPI();
   }, [setCountries]);
 
+  // const fil = (country)=>{
+  //   if (country.includes(getText)){
+  //     return country;
+  //   }
+  // }
+
+  // // const filter= ()=>{
+  // //   var con=getCountries.filter(fil);
+  // //   console.log(con);
+  // //   setCountries(con);
+  // // }
+
   return (
     <View>
-      <Input placeholder="Enter Country Name" style={{ padding: 10 }} />
+      <Input
+        placeholder="Enter Country Name"
+        style={{ padding: 10 }}
+        onChangeText={(v) => {
+          setText(v);
+        }}
+      />
       <FlatList
         refreshing={false}
         onRefresh={getDataFromAPI}
@@ -199,8 +219,9 @@ const Countries = ({ navigation }) => {
 
 const CountryStats = ({ navigation, route }) => {
   const [getData, setData] = React.useState();
-  const [getPop, setPop] = React.useState("Not Found");
+  const [getPop, setPop] = React.useState('Not Found');
   const [selected, setSelected] = React.useState(false);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -208,6 +229,7 @@ const CountryStats = ({ navigation, route }) => {
           style={{ marginRight: 15 }}
           onPress={() => {
             setSelected(!selected);
+            addToFav();
           }}>
           <Icon
             name="star"
@@ -218,6 +240,17 @@ const CountryStats = ({ navigation, route }) => {
       ),
     });
   });
+
+  const addToFav = async () => {
+    console.log('Saving');
+    console.log(route.params);
+    var list = JSON.parse(await AsyncStorage.getItem('@fav:key'));
+    console.log(list);
+    var newList = [...list, route.params];
+    await AsyncStorage.setItem('@fav:key', JSON.stringify(newList));
+    console.log(newList);
+    console.log('Saving Done!');
+  };
 
   const getDataFromAPI = async () => {
     fetch(
@@ -244,15 +277,19 @@ const CountryStats = ({ navigation, route }) => {
   };
 
   const getDataFromAPI2 = async () => {
-    fetch(`https://world-population.p.rapidapi.com/population?country_name=${encodeURIComponent(
+    fetch(
+      `https://world-population.p.rapidapi.com/population?country_name=${encodeURIComponent(
         route.params
-      )}`, {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': 'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
-        'x-rapidapi-host': 'world-population.p.rapidapi.com',
-      },
-    })
+      )}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key':
+            'bbc0c72044msh8ff2f36a950ab26p14e44bjsn91e599057dc9',
+          'x-rapidapi-host': 'world-population.p.rapidapi.com',
+        },
+      }
+    )
       .then((response) => response.json())
       .then((result) => {
         console.log(result.body.population);
@@ -335,10 +372,42 @@ const CountryStats = ({ navigation, route }) => {
   );
 };
 
-const FavCountries = () => {
+const FavCountries = ({ navigation }) => {
+  const [getCountries, setCountries] = React.useState();
+
+  const LoadData = async () => {
+    console.log('Loading');
+    var item = await AsyncStorage.getItem('@fav:key');
+    setCountries(JSON.parse(item));
+    console.log('Data Loaded');
+  };
+
+  React.useEffect(() => {
+    LoadData();
+  }, [setCountries]);
+
   return (
     <View>
-      <Text>Fav Countries</Text>
+      <FlatList
+        refreshing={false}
+        onRefresh={LoadData}
+        keyExtractor={(item, index) => item.key}
+        data={getCountries}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            style={{
+              width: '100%',
+              padding: 10,
+              backgroundColor: 'lightgrey',
+              margin: 1,
+            }}
+            onPress={() => {
+              navigation.navigate('Country Details', item);
+            }}>
+            <Text>{item}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 };
@@ -350,8 +419,9 @@ const Drawer = createDrawerNavigator();
 function MyDrawer() {
   return (
     <Drawer.Navigator>
-      <Drawer.Screen name="Countries Stats" component={MyStack} />
       <Drawer.Screen name="World Stats" component={World} />
+      <Drawer.Screen name="Countries Stats" component={MyStack} />
+      
       <Drawer.Screen name="Favourite Countries" component={FavCountries} />
     </Drawer.Navigator>
   );
