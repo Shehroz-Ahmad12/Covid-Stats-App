@@ -9,10 +9,8 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import { Input } from 'react-native-elements';
 import {
   createDrawerNavigator,
@@ -20,19 +18,16 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 import Constants from 'expo-constants';
 
-const World = () => {
+const WorldStats = () => {
   const [getCovidData, setCovidData] = React.useState();
-  const [getPop, setPop] = React.useState();
+  const [getPopulation, setPopulation] = React.useState();
   const [getData, setData] = React.useState();
 
-  const getDataFromAPI = async () => {
+  const getCovidDataApi = async () => {
     fetch('https://covid-19-data.p.rapidapi.com/totals', {
       method: 'GET',
       headers: {
@@ -50,7 +45,7 @@ const World = () => {
       });
   };
 
-  const getDataFromAPI2 = async () => {
+  const getWorldPopulationApi = async () => {
     fetch('https://world-population.p.rapidapi.com/worldpopulation', {
       method: 'GET',
       headers: {
@@ -61,7 +56,7 @@ const World = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result.body.world_population);
-        setPop(result.body.world_population);
+        setPopulation(result.body.world_population);
       })
       .catch((error) => {
         console.log('Error: ', error);
@@ -69,25 +64,25 @@ const World = () => {
   };
 
   React.useEffect(() => {
-    getDataFromAPI();
+    getCovidDataApi();
   }, [setCovidData]);
 
   React.useEffect(() => {
-    getDataFromAPI2();
-  }, [setPop]);
+    getWorldPopulationApi();
+  }, [setPopulation]);
 
-  if (getCovidData && getPop) {
+  if (getCovidData && getPopulation) {
     return (
       <>
         <View style={styles.container}>
           <FlatList
             refreshing={false}
-            onRefresh={getDataFromAPI}
+            onRefresh={getCovidDataApi}
             keyExtractor={(item, index) => item.key}
             data={getCovidData}
             renderItem={({ item, index }) => (
               <View>
-                <Text style={styles.card}>{getPop}</Text>
+                <Text style={styles.card}>{getPopulation}</Text>
                 <Text style={styles.label}>Total World Population</Text>
 
                 <Text style={[styles.card, { backgroundColor: 'plum' }]}>
@@ -96,7 +91,7 @@ const World = () => {
 
                 <Text style={styles.label}>Total Cases</Text>
                 <Text style={styles.label}>
-                  {((item.confirmed / getPop) * 100).toFixed(3)}%
+                  {((item.confirmed / getPopulation) * 100).toFixed(3)}%
                 </Text>
 
                 <Text style={[styles.card, { backgroundColor: 'yellowgreen' }]}>
@@ -104,7 +99,7 @@ const World = () => {
                 </Text>
                 <Text style={styles.label}>Recovered</Text>
                 <Text style={styles.label}>
-                  {((item.recovered / getPop) * 100).toFixed(3)}%
+                  {((item.recovered / getPopulation) * 100).toFixed(3)}%
                 </Text>
 
                 <Text style={[styles.card, { backgroundColor: 'tomato' }]}>
@@ -112,7 +107,7 @@ const World = () => {
                 </Text>
                 <Text style={styles.label}>Total Deaths</Text>
                 <Text style={styles.label}>
-                  {((item.deaths / getPop) * 100).toFixed(3)}%
+                  {((item.deaths / getPopulation) * 100).toFixed(3)}%
                 </Text>
 
                 <Text
@@ -135,18 +130,18 @@ const World = () => {
   } else {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color="#6545a4" size="large" />
+        <ActivityIndicator color="lightgreen" size="large" />
         <Text style={{ alignSelf: 'center' }}>Loading....</Text>
       </View>
     );
   }
 };
 
-const Countries = ({ navigation }) => {
+const CountriesList = ({ navigation }) => {
   const [getCountries, setCountries] = React.useState();
   const [getText, setText] = React.useState();
 
-  const getDataFromAPI = async () => {
+  const getCountriesApi = async () => {
     fetch('https://covid-19-data.p.rapidapi.com/help/countries', {
       method: 'GET',
       headers: {
@@ -179,48 +174,52 @@ const Countries = ({ navigation }) => {
   };
   React.useEffect(
     () => {
-      getDataFromAPI();
+      getCountriesApi();
     },
     [setCountries],
     [setText]
   );
 
-  return (
-    <View>
-      <Input
-        placeholder="Enter Country Name"
-        style={{ padding: 10 }}
-        onChangeText={(v) => {
-          filter(v);
-        }}
-      />
-      <FlatList
-        refreshing={false}
-        onRefresh={getDataFromAPI}
-        keyExtractor={(item, index) => item.key}
-        data={getCountries}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              padding: 10,
-              backgroundColor: 'lightgrey',
-              margin: 1,
-            }}
-            onPress={() => {
-              navigation.navigate('Country Details', item);
-            }}>
-            <Text>{item}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
+  if (getCountries) {
+    return (
+      <View>
+        <Input
+          placeholder="Enter Country Name"
+          style={{ padding: 5 }}
+          onChangeText={(v) => {
+            filter(v);
+          }}
+        />
+        <FlatList
+          refreshing={false}
+          onRefresh={getCountriesApi}
+          keyExtractor={(item, index) => item.key}
+          data={getCountries}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              style={styles.countryLabel}
+              onPress={() => {
+                navigation.navigate('Country Details', item);
+              }}>
+              <Text>{item}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator color="lightgreen" size="large" />
+        <Text style={{ alignSelf: 'center' }}>Loading....</Text>
+      </View>
+    );
+  }
 };
 
 const CountryStats = ({ navigation, route }) => {
-  const [getData, setData] = React.useState();
-  const [getPop, setPop] = React.useState('Not Found');
+  const [getCountryData, setCountryData] = React.useState();
+  const [getPopulation, setPopulation] = React.useState('Data Not Found');
   const [selected, setSelected] = React.useState(false);
 
   React.useLayoutEffect(() => {
@@ -240,7 +239,7 @@ const CountryStats = ({ navigation, route }) => {
           <Icon
             name="star"
             size={30}
-            color={selected ? 'black' : 'lightgrey'}
+            color={selected ? 'mediumblue' : 'lightgrey'}
           />
         </TouchableOpacity>
       ),
@@ -278,7 +277,7 @@ const CountryStats = ({ navigation, route }) => {
     }
   };
 
-  const getDataFromAPI = async () => {
+  const getCountryDataAPI = async () => {
     fetch(
       `https://covid-19-data.p.rapidapi.com/country?name=${encodeURIComponent(
         route.params
@@ -295,14 +294,14 @@ const CountryStats = ({ navigation, route }) => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result.confirmed);
-        setData(result);
+        setCountryData(result);
       })
       .catch((error) => {
         console.log('Error: ', error);
       });
   };
 
-  const getDataFromAPI2 = async () => {
+  const getCountryPopApi = async () => {
     fetch(
       `https://world-population.p.rapidapi.com/population?country_name=${encodeURIComponent(
         route.params
@@ -320,7 +319,7 @@ const CountryStats = ({ navigation, route }) => {
       .then((result) => {
         console.log(result.body.population);
         checkFvrt();
-        setPop(result.body.population);
+        setPopulation(result.body.population);
       })
       .catch((error) => {
         console.log('Error: ', error);
@@ -328,75 +327,84 @@ const CountryStats = ({ navigation, route }) => {
   };
 
   React.useEffect(() => {
-    getDataFromAPI2();
-  }, [setPop]);
+    getCountryPopApi();
+  }, [setPopulation]);
 
   React.useEffect(() => {
-    getDataFromAPI();
-  }, [setData]);
+    getCountryDataAPI();
+  }, [setCountryData]);
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        refreshing={false}
-        onRefresh={getDataFromAPI}
-        keyExtractor={(item, index) => item.key}
-        data={getData}
-        renderItem={({ item, index }) => (
-          <View>
-            <Text
-              style={{
-                alignSelf: 'center',
-                fontSize: 33,
-                fontWeight: 'bold',
-                marginTop: 20,
-              }}>
-              {item.country}
-            </Text>
-            <Text style={styles.card}>{getPop}</Text>
-            <Text style={styles.label}>Total Population</Text>
+  if (getCountryData && getPopulation) {
+    return (
+      <View style={styles.container}>
+        <FlatList
+          refreshing={false}
+          onRefresh={getCountryDataAPI}
+          keyExtractor={(item, index) => item.key}
+          data={getCountryData}
+          renderItem={({ item, index }) => (
+            <View>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  fontSize: 33,
+                  fontWeight: 'bold',
+                  marginTop: 20,
+                }}>
+                {item.country}
+              </Text>
+              <Text style={styles.card}>{getPopulation}</Text>
+              <Text style={styles.label}>Total Population</Text>
 
-            <Text style={[styles.card, { backgroundColor: 'plum' }]}>
-              {item.confirmed}
-            </Text>
+              <Text style={[styles.card, { backgroundColor: 'plum' }]}>
+                {item.confirmed}
+              </Text>
 
-            <Text style={styles.label}>Total Cases</Text>
-            <Text style={styles.label}>
-              {((item.confirmed / getPop) * 100).toFixed(3)}%
-            </Text>
+              <Text style={styles.label}>Total Cases</Text>
+              <Text style={styles.label}>
+                {((item.confirmed / getPopulation) * 100).toFixed(3)}%
+              </Text>
 
-            <Text style={[styles.card, { backgroundColor: 'yellowgreen' }]}>
-              {item.recovered}
-            </Text>
-            <Text style={styles.label}>Recovered</Text>
-            <Text style={styles.label}>
-              {((item.recovered / getPop) * 100).toFixed(3)}%
-            </Text>
+              <Text style={[styles.card, { backgroundColor: 'yellowgreen' }]}>
+                {item.recovered}
+              </Text>
+              <Text style={styles.label}>Recovered</Text>
+              <Text style={styles.label}>
+                {((item.recovered / getPopulation) * 100).toFixed(3)}%
+              </Text>
 
-            <Text style={[styles.card, { backgroundColor: 'tomato' }]}>
-              {item.deaths}
-            </Text>
-            <Text style={styles.label}>Total Deaths</Text>
-            <Text style={styles.label}>
-              {((item.deaths / getPop) * 100).toFixed(3)}%
-            </Text>
+              <Text style={[styles.card, { backgroundColor: 'tomato' }]}>
+                {item.deaths}
+              </Text>
+              <Text style={styles.label}>Total Deaths</Text>
+              <Text style={styles.label}>
+                {((item.deaths / getPopulation) * 100).toFixed(3)}%
+              </Text>
 
-            <Text
-              style={[
-                styles.label,
-                { backgroundColor: 'lightgrey', marginTop: 20 },
-              ]}>
-              Last Updated
-            </Text>
+              <Text
+                style={[
+                  styles.label,
+                  { backgroundColor: 'lightgrey', marginTop: 20 },
+                ]}>
+                Last Updated
+              </Text>
 
-            <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
-              {item.lastUpdate}
-            </Text>
-          </View>
-        )}
-      />
-    </View>
-  );
+              <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
+                {item.lastUpdate}
+              </Text>
+            </View>
+          )}
+        />
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator color="lightgreen" size="large" />
+        <Text style={{ alignSelf: 'center' }}>Loading....</Text>
+      </View>
+    );
+  }
 };
 
 const FavCountries = ({ navigation }) => {
@@ -413,30 +421,34 @@ const FavCountries = ({ navigation }) => {
     loadData();
   }, [setCountries]);
 
-  return (
-    <View>
-      <FlatList
-        refreshing={false}
-        onRefresh={loadData}
-        keyExtractor={(item, index) => item.key}
-        data={getCountries}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              padding: 10,
-              backgroundColor: 'lightgrey',
-              margin: 1,
-            }}
-            onPress={() => {
-              navigation.navigate('Country Details', item);
-            }}>
-            <Text>{item}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
+  if (getCountries) {
+    return (
+      <View>
+        <FlatList
+          refreshing={false}
+          onRefresh={loadData}
+          keyExtractor={(item, index) => item.key}
+          data={getCountries}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              style={styles.countryLabel}
+              onPress={() => {
+                navigation.navigate('Country Details', item);
+              }}>
+              <Text>{item}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator color="lightgreen" size="large" />
+        <Text style={{ alignSelf: 'center' }}>Loading....</Text>
+      </View>
+    );
+  }
 };
 
 const Stack = createNativeStackNavigator();
@@ -445,7 +457,7 @@ const Drawer = createDrawerNavigator();
 function MyDrawer() {
   return (
     <Drawer.Navigator>
-      <Drawer.Screen name="World Stats" component={World} />
+      <Drawer.Screen name="World Stats" component={WorldStats} />
       <Drawer.Screen name="Countries Stats" component={MyStack} />
       <Drawer.Screen name="Favourite Countries" component={FavCountries} />
     </Drawer.Navigator>
@@ -455,8 +467,32 @@ function MyDrawer() {
 function MyStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Countries" component={Countries} />
-      <Stack.Screen name="Country Details" component={CountryStats} />
+      <Stack.Screen
+        name="Countries"
+        component={CountriesList}
+        options={{
+          headerStyle: {
+            backgroundColor: 'steelblue',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Country Details"
+        component={CountryStats}
+        options={{
+          headerStyle: {
+            backgroundColor: 'steelblue',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -490,5 +526,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  countryLabel: {
+    width: '100%',
+    padding: 10,
+    backgroundColor: 'lightsteelblue',
+    margin: 1,
+    borderRadius: 10,
   },
 });
