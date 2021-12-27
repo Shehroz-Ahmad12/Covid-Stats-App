@@ -113,12 +113,16 @@ const WorldStats = () => {
                 <Text
                   style={[
                     styles.label,
-                    { backgroundColor: 'lightgrey', marginTop: 20 },
+                    { backgroundColor: 'gold', marginTop: 20, padding: 10 },
                   ]}>
                   Last Updated
                 </Text>
 
-                <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
+                <Text
+                  style={[
+                    styles.label,
+                    { backgroundColor: 'gold', padding: 10 },
+                  ]}>
                   {item.lastUpdate}
                 </Text>
               </View>
@@ -185,7 +189,7 @@ const CountriesList = ({ navigation }) => {
       <View>
         <Input
           placeholder="Enter Country Name"
-          style={{ padding: 5, width: "80%" }}
+          style={{ padding: 5, width: '80%' }}
           onChangeText={(v) => {
             filter(v);
           }}
@@ -239,7 +243,7 @@ const CountryStats = ({ navigation, route }) => {
           <Icon
             name="star"
             size={30}
-            color={selected ? 'mediumblue' : 'lightgrey'}
+            color={selected ? 'lightgreen' : 'lightgrey'}
           />
         </TouchableOpacity>
       ),
@@ -383,12 +387,16 @@ const CountryStats = ({ navigation, route }) => {
               <Text
                 style={[
                   styles.label,
-                  { backgroundColor: 'lightgrey', marginTop: 20 },
+                  { backgroundColor: 'gold', marginTop: 20, padding: 10 },
                 ]}>
                 Last Updated
               </Text>
 
-              <Text style={[styles.label, { backgroundColor: 'lightgrey' }]}>
+              <Text
+                style={[
+                  styles.label,
+                  { backgroundColor: 'gold', padding: 10 },
+                ]}>
                 {item.lastUpdate}
               </Text>
             </View>
@@ -432,7 +440,7 @@ const FavCountries = ({ navigation }) => {
             <TouchableOpacity
               style={styles.countryLabel}
               onPress={() => {
-                console.log("Shift to Country Details")
+                console.log('Shift to Country Details');
                 navigation.push('Country Details', item);
               }}>
               <Text>{item}</Text>
