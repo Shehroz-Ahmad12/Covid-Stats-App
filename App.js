@@ -25,7 +25,6 @@ import Constants from 'expo-constants';
 const WorldStats = () => {
   const [getCovidData, setCovidData] = React.useState();
   const [getPopulation, setPopulation] = React.useState();
-  const [getData, setData] = React.useState();
 
   const getCovidDataApi = async () => {
     fetch('https://covid-19-data.p.rapidapi.com/totals', {
@@ -197,7 +196,7 @@ const CountriesList = ({ navigation }) => {
         <FlatList
           refreshing={false}
           onRefresh={getCountriesApi}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={(item, index) => index}
           data={getCountries}
           renderItem={({ item, index }) => (
             <TouchableOpacity
@@ -343,7 +342,7 @@ const CountryStats = ({ navigation, route }) => {
         <FlatList
           refreshing={false}
           onRefresh={getCountryDataAPI}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={(item, index) => index}
           data={getCountryData}
           renderItem={({ item, index }) => (
             <View>
@@ -434,7 +433,7 @@ const FavCountries = ({ navigation }) => {
         <FlatList
           refreshing={false}
           onRefresh={loadData}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={(item, index) => index}
           data={getCountries}
           renderItem={({ item, index }) => (
             <TouchableOpacity
